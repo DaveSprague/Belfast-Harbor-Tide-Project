@@ -1,4 +1,3 @@
-
 // adapted from Adafruit Feather M0 LoRa Sample TX code
 // by David L. Sprague, Nov 5, 2018
 
@@ -158,6 +157,8 @@ void loop()
 }
 
 bool recvdWithEndMarkers(char endMarker) {
+  // this function is based on code from Robin2 on Arduino Forums
+  // it implements a nonblocking, character by character read of a serial port
     static byte ndx = 0;
     char rc;
     bool newData = false;
