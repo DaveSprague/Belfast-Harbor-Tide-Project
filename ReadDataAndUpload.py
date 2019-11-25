@@ -1,11 +1,5 @@
-#!/usr/bin/python3
-# Written by David L Sprague Nov 2019
-# This code reads data coming from a set of sensors via an external LoRa reciever
-# implemented using an Adafruit Feather M0 connected to a USB port.  It averages
-# the sensor data and uploads it to a Google spreadsheet.
-# Code for uploading data to Google sheets is from 
-# http://www.whatimade.today/log-sensor-data-straight-to-google-sheets-from-a-raspberry-pi-zero-all-the-python-code/                                                                                                                                
-
+#!/usr/bin/python3                                                                   
+# import many libraries                                                               
 from __future__ import print_function
 from googleapiclient.discovery import build
 from httplib2 import Http
@@ -35,33 +29,36 @@ def update_sheet(sheetname, dtemp, dpres, stemp,spres, vbat , missedPackets):
     # Call the Sheets API, append the next row of sensor data                         
     # values is the array of rows we are updating, its a single row                   
     values = [ [ str(datetime.datetime.now()),
-	            'DepthTemp,C', dtemp, 'DepthPress,hPa', dpres,
-                'SurfaceTemp,C', stemp, 'SurfacePress,hPa', spres,
-                'BattVoltage', vbat, 'MissedPackets', missedPackets] ]
+	         'DepthTemp,C', dtemp, 'DepthPress,hPa', dpres,
+                 'SurfaceTemp,C', stemp, 'SurfacePress,hPa', spres,
+                 'BattVoltage', vbat, 'MissedPackets', missedPackets] ]
     body = { 'values': values }
 
         # call the append API to perform the operation                                    
-    result = service.spreadsheets().values().append(
+    try:
+        result = service.spreadsheets().values().append(
                 spreadsheetId=MY_SPREADSHEET_ID,
                 range=sheetname + '!A1:N1',
                 valueInputOption='USER_ENTERED',
                 insertDataOption='INSERT_ROWS',
                 body=body).execute()
+    except:
+        print("Upload to Spreadsheet failed:", sys.exc_info()[0])
 
 def main():
     prevSeqNum = None
     while(1):
+        
         depthTempList = []
         depthPressList = []
         surfaceTempList = []
         surfacePressList = []
         vBatList = []
         
+        
         missedPackets = 0
         while len(depthTempList) < 60:
             message = ser.read_until().decode("ascii").strip()
-            print("Received: " + message)
-            print(':'.join(hex(ord(x))[2:] for x in message))
             if len(message) > 5:
                 fields = list(filter(None, re.split("[, \-!?:]+", message)))
                 print(fields)
@@ -79,16 +76,9 @@ def main():
                 surfaceTempList.append(float(fields[3]))
                 surfacePressList.append(float(fields[4]))
                 vBatList.append(float(fields[5]))
-                print('Depth Temperature: %f °C' % float(fields[1]))
-                print ('Depth Pressure: %f hPa' % float(fields[2]))
-                print('Sequence Number: %i' % seqNum)
-                if prevSeqNum != None:
-                     print('prev Seq Number: %i' % prevSeqNum)
-                print('sample count: %i' % len(depthTempList))
-                print('Missed Packet Count: %i' % missedPackets)
-
+                print("Missed Packet Count: " + str(missedPackets));
                 prevSeqNum = seqNum
-                
+                 
         depthTemp = sum(depthTempList)/len(depthTempList)
         depthPress = sum(depthPressList)/len(depthPressList)
         surfaceTemp = sum(surfaceTempList)/len(surfaceTempList)
@@ -100,4 +90,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main() 
+    main()
