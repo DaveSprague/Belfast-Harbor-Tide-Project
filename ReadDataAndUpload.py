@@ -58,7 +58,11 @@ def main():
         
         missedPackets = 0
         while len(depthTempList) < 60:
-            message = ser.read_until().decode("ascii").strip()
+            try:
+                message = ser.read_until().decode("ascii").strip()
+            except:
+                print("error decoding message as ascii")
+                continue
             if len(message) > 5:
                 fields = list(filter(None, re.split("[, \-!?:]+", message)))
                 print(fields)
