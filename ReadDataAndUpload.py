@@ -43,7 +43,7 @@ def update_sheet(sheetname, dtemp, dpres, stemp,spres, vbat , missedPackets):
                 insertDataOption='INSERT_ROWS',
                 body=body).execute()
     except:
-        print("Upload to Spreadsheet failed:", sys.exc_info()[0])
+        print("Upload to Spreadsheet failed:")
 
 def main():
     prevSeqNum = None
