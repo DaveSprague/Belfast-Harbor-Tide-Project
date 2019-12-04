@@ -64,7 +64,7 @@ def main():
                 print("error decoding message as ascii")
                 continue
             if len(message) > 5:
-                fields = list(filter(None, re.split("[, \-!?:]+", message)))
+                fields = list(filter(None, re.split("[, :]+", message)))
                 print(fields)
                 seqNum = int(fields[0][1:])
                 if prevSeqNum != None:
